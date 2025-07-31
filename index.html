@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva de Estandes - Expo Centro-Oeste</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+    .stand { border: 1px solid #aaa; padding: 20px; text-align: center; cursor: pointer; }
+    .selected { background-color: lightgreen; }
+    .reserved { background-color: lightgray; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Reserva de Estandes - Expo Centro-Oeste</h1>
+
+  <form id="form">
+    <label>Nome: <input type="text" name="nome" required /></label><br /><br />
+    <label>Telefone: <input type="text" name="telefone" required /></label><br /><br />
+    <input type="hidden" name="estandes" id="estandesSelecionados" />
+    <button type="submit">Reservar Estandes</button>
+  </form>
+
+  <div class="grid" id="mapaEstandes"></div>
+
+  <script>
+    const scriptURL = 'COLE_AQUI_A_URL_DO_SEU_WEBAPP_GOOGLE_SCRIPT'; // Atualize aqui
+    const totalEstandes = 20;
+    const mapa = document.getElementById('mapaEstandes');
+    let estandesReservados = [];
+    let estandesSelecionados = [];
+
+    // Inicializa os estandes (buscando do Firebase em versão futura)
+    for (let i = 1; i <= totalEstandes; i++) {
+      const div = document.createElement('div');
+      div.className = 'stand';
+      div.innerText = 'Estande ' + i;
+      div.dataset.numero = i;
+      div.onclick = () => selecionar(div);
+      mapa.appendChild(div);
+    }
+
+    function selecionar(div) {
+      const num = div.dataset.numero;
+      if (div.classList.contains('reserved')) return;
+      if (div.classList.contains('selected')) {
+        div.classList.remove('selected');
+        estandesSelecionados = estandesSelecionados.filter(e => e != num);
+      } else {
+        div.classList.add('selected');
+        estandesSelecionados.push(num);
+      }
+      document.getElementById('estandesSelecionados').value = estandesSelecionados.join(',');
+    }
+
+    document.getElementById('form').addEventListener('submit', e => {
+      e.preventDefault();
+      if (estandesSelecionados.length === 0) {
+        alert('Selecione ao menos um estande.');
+        return;
+      }
+      const formData = new FormData(e.target);
+      fetch(scriptURL, { method: 'POST', body: formData })
+        .then(() => {
+          alert('Reserva feita com sucesso!');
+          estandesSelecionados.forEach(num => {
+            const box = [...document.querySelectorAll('.stand')].find(d => d.dataset.numero === num);
+            box.classList.remove('selected');
+            box.classList.add('reserved');
+          });
+          estandesSelecionados = [];
+          document.getElementById('form').reset();
+        })
+        .catch(() => alert('Erro ao enviar reserva.'));
+    });
+  </script>
+</body>
+</html>
