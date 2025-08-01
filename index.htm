@@ -1,122 +1,161 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Reserva de Stands para Evento em Senador Canedo de 02 a 10/05/2025"/>
-  <title>Reserva de Stands</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva de Estandes</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
       margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
+      padding: 0;
+      background-color: #f4f4f4;
     }
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-    }
-    .mapa-imagem {
-      margin: 10px auto 20px;
-      max-width: 90%;
-      border: 1px solid #ccc;
-    }
-    form {
-      background: #fff;
-      padding: 20px;
-      max-width: 500px;
+
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
     }
-    input, select, textarea, button {
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 5px;
+
+    h1 {
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .stand {
+      background-color: #ffef94;
       border: 1px solid #ccc;
-    }
-    button {
-      background-color: #2e7d32;
-      color: white;
-      border: none;
+      padding: 20px;
+      text-align: center;
       cursor: pointer;
     }
-    button:hover {
-      background-color: #1b5e20;
+
+    .stand.selected {
+      background-color: #f5c842;
+      font-weight: bold;
     }
-    .sucesso {
-      background: #d4edda;
-      color: #155724;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #c3e6cb;
+
+    form {
+      background-color: #fff;
+      padding: 20px;
       border-radius: 5px;
-      display: none;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
     }
   </style>
 </head>
+
 <body>
-  <h1>Reserva de Stands</h1>
-  <img src="mapa-expo.jpeg" alt="Mapa dos estandes" class="mapa-imagem" />
+  <div class="container">
+    <h1>Reserva de Estandes</h1>
+    <div class="grid" id="standGrid"></div>
 
-  <form id="reservaForm">
-    <input type="text" name="nome" placeholder="Nome completo" required />
-    <input type="tel" name="telefone" placeholder="Telefone" required />
-    <input type="email" name="email" placeholder="E-mail" required />
-    <input type="text" name="empresa" placeholder="Nome da empresa" />
-    <input type="text" name="estandeselecionado" placeholder="Estande desejado (ex: A10)" required />
-    <textarea name="observacoes" placeholder="Observações adicionais" rows="4"></textarea>
-    <button type="submit">Enviar Reserva</button>
-    <div class="sucesso" id="sucessoMsg">Reserva enviada com sucesso!</div>
-  </form>
+    <form id="reservationForm" style="display: none;">
+      <input type="text" name="nome" placeholder="Nome" required>
+      <input type="text" name="empresa" placeholder="Empresa ou Marca" required>
+      <input type="tel" name="whatsapp" placeholder="WhatsApp" required pattern="\d{2}\d{5}\d{4}" title="Formato: DDD + número (apenas dígitos)">
+      <textarea name="detalhes" placeholder="Detalhes ou observações (opcional)"></textarea>
+      <input type="hidden" name="estandes" id="estandesSelecionados">
+      <button type="submit">Enviar Reserva</button>
+    </form>
+  </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Firebase SDK v9+ (modular)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js";
-
-    // 🔧 Substitua pelas suas credenciais do Firebase
+  <script>
     const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_DOMINIO.firebaseapp.com",
-      projectId: "SEU_PROJECT_ID",
-      storageBucket: "SEU_BUCKET.appspot.com",
-      messagingSenderId: "SEU_SENDER_ID",
-      appId: "SUA_APP_ID"
+      apiKey: "AIzaSyBh0B1a803gKL9Fw1g_EW9eO0-8g190DN4",
+      authDomain: "reservaexpoco-senadorcanedo.firebaseapp.com",
+      projectId: "reservaexpoco-senadorcanedo",
+      storageBucket: "reservaexpoco-senadorcanedo.appspot.com",
+      messagingSenderId: "1080596732734",
+      appId: "1:1080596732734:web:03bd3ef7b6ef46f318542f"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    const allStands = [];
+    const letters = ['A','B','C','D','E','F','G'];
+    const maxNumbers = { A: 20, B: 40, C: 50, D: 50, E: 50, F: 70, G: 181 };
 
-    // Função de envio
-    const form = document.getElementById("reservaForm");
-    const sucessoMsg = document.getElementById("sucessoMsg");
+    letters.forEach(letter => {
+      for (let i = 1; i <= maxNumbers[letter]; i++) {
+        allStands.push(`${letter}${i}`);
+      }
+    });
 
-    form.addEventListener("submit", async (e) => {
+    const grid = document.getElementById('standGrid');
+    const form = document.getElementById('reservationForm');
+    const selectedInput = document.getElementById('estandesSelecionados');
+
+    let selectedStands = [];
+
+    allStands.forEach(stand => {
+      const div = document.createElement('div');
+      div.className = 'stand';
+      div.textContent = stand;
+      div.onclick = () => {
+        if (selectedStands.includes(stand)) {
+          selectedStands = selectedStands.filter(s => s !== stand);
+          div.classList.remove('selected');
+        } else {
+          selectedStands.push(stand);
+          div.classList.add('selected');
+        }
+
+        if (selectedStands.length > 0) {
+          form.style.display = 'block';
+          selectedInput.value = selectedStands.join(', ');
+        } else {
+          form.style.display = 'none';
+        }
+      };
+      grid.appendChild(div);
+    });
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const dados = {
-        nome: form.nome.value,
-        telefone: form.telefone.value,
-        email: form.email.value,
-        empresa: form.empresa.value,
-        estandeselecionado: form.estandeselecionado.value,
-        observacoes: form.observacoes.value,
-        timestamp: new Date()
-      };
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => data[key] = value);
 
-      try {
-        await addDoc(collection(db, "reservas"), dados);
-        sucessoMsg.style.display = "block";
-        form.reset();
-      } catch (error) {
-        alert("Erro ao enviar: " + error.message);
-      }
+      alert("Reserva enviada com sucesso! Em breve entraremos em contato para confirmar os detalhes.");
+      form.reset();
+      form.style.display = 'none';
+      document.querySelectorAll('.stand').forEach(div => div.classList.remove('selected'));
+      selectedStands = [];
     });
   </script>
 </body>
+
 </html>
