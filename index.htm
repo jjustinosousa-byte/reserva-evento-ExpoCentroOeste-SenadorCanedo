@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva de Estandes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f8f8f8;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .mapa-imagem {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px auto 30px;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .conteudo-principal {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .tabela-estandes, .formulario-cliente {
+      flex: 1 1 48%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tabela-estandes table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tabela-estandes td {
+      padding: 6px;
+      text-align: center;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tabela-estandes td.selected {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .formulario-cliente input,
+    .formulario-cliente button {
+      display: block;
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      font-size: 1em;
+    }
+
+    @media (max-width: 768px) {
+      .tabela-estandes, .formulario-cliente {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>MAPA DO EVENTO</h1>
+  <h2>02 à 05/10/25 – Local: Senador Canedo</h2>
+
+  <img src="mapa-expo.jpeg" alt="Mapa do Evento" class="mapa-imagem" />
+
+  <div class="conteudo-principal">
+    <!-- TABELA DE ESTANDES -->
+    <div class="tabela-estandes">
+      <h3>Selecione seus estandes:</h3>
+      <table>
+        <tr>
+          <td>A1</td><td>A2</td><td>A3</td><td>A4</td><td>A5</td>
+        </tr>
+        <tr>
+          <td>A6</td><td>A7</td><td>A8</td><td>A9</td><td>A10</td>
+        </tr>
+        <!-- Adicione aqui todos os estandes conforme mapa -->
+      </table>
+    </div>
+
+    <!-- FORMULÁRIO DE CLIENTE -->
+    <div class="formulario-cliente">
+      <h3>Seus Dados</h3>
+      <input type="text" placeholder="Nome Completo" required />
+      <input type="email" placeholder="Email" required />
+      <input type="tel" placeholder="Telefone/WhatsApp" required />
+      <input type="file" />
+      <button type="submit">Finalizar Reserva</button>
+    </div>
+  </div>
+
+  <script>
+    // Seleção de múltiplos estandes
+    const estandes = document.querySelectorAll('.tabela-estandes td');
+    estandes.forEach(td => {
+      td.addEventListener('click', () => {
+        td.classList.toggle('selected');
+      });
+    });
+  </script>
+
+</body>
+</html>
