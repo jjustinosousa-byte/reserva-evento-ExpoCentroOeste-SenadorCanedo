@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva de Estandes - ExpoCentroOeste</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    .map-container {
+      text-align: center;
+      margin: 20px auto;
+    }
+    .map-container img {
+      max-width: 100%;
+      height: auto;
+    }
+    .horizontal-warning {
+      background-color: #FFD580;
+      color: #000;
+      font-size: 11pt;
+      font-weight: bold;
+      text-align: center;
+      padding: 8px;
+      margin: 10px 0;
+    }
+    .estandes-instrucao {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+      gap: 4px;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .box {
+      background-color: #ffffcc;
+      border: 1px solid #ccc;
+      text-align: center;
+      font-size: 11pt;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .box.reservado {
+      background-color: #ccc;
+      color: #666;
+      pointer-events: none;
+    }
+    .box.selecionado {
+      background-color: #87CEEB;
+    }
+    form {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 4px;
+    }
+    input[type="text"], input[type="tel"], input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reserva de Estandes - ExpoCentroOeste</h1>
+  <div class="map-container">
+    <img src="https://jjustinosousa-byte.github.io/reserva-evento-ExpoCentroOeste-SenadorCanedo/img/mapa-oficial.png" alt="Mapa da Feira">
+  </div>
+  <div class="horizontal-warning">
+    USANDO CELULAR OU TABLETE VIRE O APARELHO NO SENTIDO HORIZONTAL PARA VISUALIZAÇÃO
+  </div>
+  <div class="estandes-instrucao">CLIQUE NO NÚMERO DE ESTANDE DESEJADO PARA A RESERVA</div>
+
+  <div class="grid" id="estandesGrid"></div>
+
+  <form id="reservaForm">
+    <label for="nome">Nome completo</label>
+    <input type="text" id="nome" required>
+
+    <label for="empresa">Nome da empresa</label>
+    <input type="text" id="empresa" required>
+
+    <label for="whatsapp">WhatsApp</label>
+    <input type="tel" id="whatsapp" required>
+
+    <label for="email">E-mail</label>
+    <input type="email" id="email" required>
+
+    <label for="produtos">Produtos que irá expor</label>
+    <input type="text" id="produtos" required>
+
+    <input type="hidden" id="estandesSelecionados">
+    <button type="submit">Enviar Reserva</button>
+  </form>
+
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <p>Reserva enviada com sucesso!</p>
+      <button onclick="fecharPopup()">Fechar</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_DOMINIO.firebaseapp.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const estandes = [
+      ...Array.from({ length: 181 }, (_, i) => `F${i + 1}`)
+    ];
+    const grid = document.getElementById('estandesGrid');
+    const selecionados = [];
+
+    async function carregarReservas() {
+      const snapshot = await db.collection("reservas").get();
+      const reservados = snapshot.docs.map(doc => doc.data().estandes).flat();
+
+      estandes.forEach(id => {
+        const div = document.createElement('div');
+        div.textContent = id;
+        div.className = 'box';
+        if (reservados.includes(id)) {
+          div.classList.add('reservado');
+        } else {
+          div.addEventListener('click', () => {
+            div.classList.toggle('selecionado');
+            if (selecionados.includes(id)) {
+              selecionados.splice(selecionados.indexOf(id), 1);
+            } else {
+              selecionados.push(id);
+            }
+            document.getElementById('estandesSelecionados').value = selecionados.join(', ');
+          });
+        }
+        grid.appendChild(div);
+      });
+    }
+
+    carregarReservas();
+
+    document.getElementById("reservaForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      if (selecionados.length === 0) {
+        alert("Selecione pelo menos um estande.");
+        return;
+      }
+
+      const reserva = {
+        nome: document.getElementById("nome").value,
+        empresa: document.getElementById("empresa").value,
+        whatsapp: document.getElementById("whatsapp").value,
+        email: document.getElementById("email").value,
+        produtos: document.getElementById("produtos").value,
+        estandes: selecionados,
+        timestamp: new Date()
+      };
+
+      await db.collection("reservas").add(reserva);
+      document.getElementById("reservaForm").reset();
+      document.querySelectorAll(".box.selecionado").forEach(el => el.classList.remove("selecionado"));
+      selecionados.length = 0;
+      document.getElementById("popup").style.display = "flex";
+    });
+
+    function fecharPopup() {
+      document.getElementById("popup").style.display = "none";
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>
