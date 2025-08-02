@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva de Estandes - Expo Centro-Oeste</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #004080;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    .container {
+      padding: 20px;
+      text-align: center;
+    }
+    .alerta-mobile {
+      background-color: #FFD580;
+      padding: 10px;
+      font-size: 11pt;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #000;
+    }
+    #mapa-estandes {
+      max-width: 100%;
+      height: auto;
+    }
+    .instrucoes {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .estandes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+      gap: 5px;
+      margin-top: 20px;
+    }
+    .estande {
+      padding: 10px 5px;
+      background-color: #ffff99;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .estande.selecionado {
+      background-color: #90ee90;
+    }
+    form {
+      margin-top: 20px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #004080;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #0066cc;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Expo Centro-Oeste - Senador Canedo</h1>
+  </header>
+
+  <div class="container">
+    <div class="alerta-mobile">
+      USANDO CELULAR OU TABLETE VIRE O APARELHO NO SENTIDO HORIZONTAL PARA VISUALIZAÇÃO
+    </div>
+
+    <img src="mapa-expo.jpeg" id="mapa-estandes" alt="Mapa dos Estandes" />
+
+    <p class="instrucoes">CLIQUE NO NÚMERO DE ESTANDE DESEJADO PARA A RESERVA</p>
+
+    <div class="estandes" id="estandes-container"></div>
+
+    <form id="reservaForm">
+      <input type="text" id="nome" name="nome" placeholder="Seu nome" required />
+      <input type="tel" id="telefone" name="telefone" placeholder="Telefone" required />
+      <input type="email" id="email" name="email" placeholder="Email" required />
+      <textarea id="observacao" name="observacao" placeholder="Observações" rows="4"></textarea>
+      <input type="hidden" id="estandeSelecionado" name="estandeSelecionado" />
+      <button type="submit">Enviar Reserva</button>
+    </form>
+
+    <div id="mensagem"></div>
+  </div>
+
+  <script type="module">
+    // Firebase config
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      databaseURL: "SUA_DATABASE_URL",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_STORAGE_BUCKET",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const estandesContainer = document.getElementById("estandes-container");
+    const estandeSelecionadoInput = document.getElementById("estandeSelecionado");
+    const mensagemDiv = document.getElementById("mensagem");
+    let estandeAtual = "";
+
+    const estandes = [];
+    const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+    letras.forEach(letra => {
+      for (let i = 1; i <= 30; i++) {
+        estandes.push(`${letra}${i}`);
+      }
+    });
+
+    const dbRef = ref(db);
+    get(child(dbRef, "reservas")).then(snapshot => {
+      const reservas = snapshot.exists() ? snapshot.val() : {};
+      estandes.forEach(est => {
+        const btn = document.createElement("div");
+        btn.className = "estande";
+        btn.innerText = est;
+        if (reservas[est]) {
+          btn.style.backgroundColor = "#ccc";
+          btn.style.cursor = "not-allowed";
+        } else {
+          btn.addEventListener("click", () => {
+            estandeAtual = est;
+            estandeSelecionadoInput.value = est;
+            document.querySelectorAll(".estande").forEach(b => b.classList.remove("selecionado"));
+            btn.classList.add("selecionado");
+          });
+        }
+        estandesContainer.appendChild(btn);
+      });
+    });
+
+    document.getElementById("reservaForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (!estandeAtual) {
+        alert("Selecione um estande antes de enviar.");
+        return;
+      }
+      const nome = document.getElementById("nome").value;
+      const telefone = document.getElementById("telefone").value;
+      const email = document.getElementById("email").value;
+      const observacao = document.getElementById("observacao").value;
+
+      set(ref(db, 'reservas/' + estandeAtual), {
+        nome, telefone, email, observacao, estande: estandeAtual
+      }).then(() => {
+        mensagemDiv.innerHTML = "Reserva enviada com sucesso!";
+        mensagemDiv.style.color = "green";
+      }).catch(() => {
+        mensagemDiv.innerHTML = "Erro ao enviar reserva.";
+        mensagemDiv.style.color = "red";
+      });
+    });
+  </script>
+</body>
+</html>
