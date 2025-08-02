@@ -18,11 +18,12 @@
     p {
       font-size: 14px;
       color: #555;
+      margin: 5px 0;
     }
     .stand-button {
       display: inline-block;
-      margin: 4px;
-      padding: 6px 10px;
+      margin: 2px;
+      padding: 5px 8px;
       font-size: 11px;
       background-color: #f4d03f;
       border: 1px solid #ccc;
@@ -31,9 +32,10 @@
     }
     .stand-button.selected {
       background-color: #58d68d;
+      color: #fff;
     }
     #stand-list {
-      margin-top: 20px;
+      margin-top: 15px;
       margin-bottom: 20px;
     }
     #form-container {
@@ -74,6 +76,7 @@
       margin-bottom: 20px;
     }
   </style>
+
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -83,7 +86,7 @@
       apiKey: "AIzaSyBHoD18a3KLk9Fwla_EW9eO0-8gi9ODN04",
       authDomain: "reservaexpoco-senadorcanedo.firebaseapp.com",
       projectId: "reservaexpoco-senadorcanedo",
-      storageBucket: "reservaexpoco-senadorcanedo.firebasestorage.app",
+      storageBucket: "reservaexpoco-senadorcanedo.appspot.com",
       messagingSenderId: "1005969732734",
       appId: "1:1005969732734:web:03bd3ef7b6ef46f310542f"
     };
@@ -109,6 +112,7 @@
         });
         alert("Reserva enviada com sucesso!");
         document.getElementById("form-container").style.display = "none";
+        document.getElementById("form-container").reset();
       } catch (error) {
         console.error("Erro ao enviar reserva: ", error);
         alert("Erro ao enviar reserva.");
@@ -117,7 +121,8 @@
 
     window.toggleStandSelection = function(button) {
       button.classList.toggle("selected");
-      document.getElementById("form-container").style.display = "block";
+      const algumSelecionado = document.querySelector(".stand-button.selected");
+      document.getElementById("form-container").style.display = algumSelecionado ? "block" : "none";
     };
   </script>
 </head>
@@ -148,30 +153,30 @@
   </div>
 
   <script>
-    const listaEstandes = [];
+    const container = document.getElementById("stand-list");
+    const estandes = [];
 
-    // Geração com base no mapa enviado (exemplo geral)
+    // Mapeamento com base no layout do mapa enviado
     const blocos = {
-      A: 1, B: 35, C: 78, D: 105, E: 124, F: 154, G: 181
+      A: 35,
+      B: 35,
+      C: 43,
+      D: 27,
+      E: 29,
+      F: 25,
+      G: 27
     };
 
     for (const bloco in blocos) {
-      const limite = blocos[bloco];
-      const inicio = bloco === "A" ? 1 : (bloco.charCodeAt(0) - 65) * 35 + 1;
-
-      for (let i = inicio; i <= limite; i++) {
-        listaEstandes.push(`${bloco}${i}`);
+      for (let i = 1; i <= blocos[bloco]; i++) {
+        const id = `${bloco}${i}`;
+        const btn = document.createElement("div");
+        btn.textContent = id;
+        btn.className = "stand-button";
+        btn.onclick = () => toggleStandSelection(btn);
+        container.appendChild(btn);
       }
     }
-
-    const container = document.getElementById("stand-list");
-    listaEstandes.forEach(stand => {
-      const btn = document.createElement("div");
-      btn.textContent = stand;
-      btn.className = "stand-button";
-      btn.onclick = () => toggleStandSelection(btn);
-      container.appendChild(btn);
-    });
   </script>
 </body>
 </html>
