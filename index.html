@@ -1,181 +1,133 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Reserva de Estandes - Expo Centro-Oeste Senador Canedo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva de Estandes</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
-      padding: 20px;
       text-align: center;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
     }
     h1 {
-      color: #333;
       margin-bottom: 10px;
     }
-    p {
+    #instrucoes {
       font-size: 14px;
-      color: #555;
-      margin: 5px 0;
+      margin-bottom: 10px;
     }
-    .stand-button {
-      display: inline-block;
-      margin: 2px;
-      padding: 5px 8px;
-      font-size: 11px;
-      background-color: #f4d03f;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .stand-button.selected {
-      background-color: #58d68d;
-      color: #fff;
-    }
-    #stand-list {
-      margin-top: 15px;
-      margin-bottom: 20px;
-    }
-    #form-container {
-      display: none;
-      background-color: #fff;
-      padding: 20px;
-      margin: auto;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-      text-align: left;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background-color: #2e86de;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    img {
+    #mapa-img {
       max-width: 100%;
       height: auto;
-      margin-bottom: 20px;
+      margin: 10px 0;
+    }
+    .estande-linha {
+      margin: 8px 0;
+    }
+    .estande {
+      display: inline-block;
+      background-color: gold;
+      color: black;
+      padding: 5px 10px;
+      margin: 2px;
+      border-radius: 5px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .selecionado {
+      background-color: green;
+      color: white;
+    }
+    #formulario {
+      background-color: white;
+      padding: 20px;
+      margin: 30px auto;
+      width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      display: none;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
     }
   </style>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBHoD18a3KLk9Fwla_EW9eO0-8gi9ODN04",
-      authDomain: "reservaexpoco-senadorcanedo.firebaseapp.com",
-      projectId: "reservaexpoco-senadorcanedo",
-      storageBucket: "reservaexpoco-senadorcanedo.appspot.com",
-      messagingSenderId: "1005969732734",
-      appId: "1:1005969732734:web:03bd3ef7b6ef46f310542f"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.enviarReserva = async function enviarReserva() {
-      const nome = document.getElementById("nome").value;
-      const telefone = document.getElementById("telefone").value;
-      const email = document.getElementById("email").value;
-      const empresa = document.getElementById("empresa").value;
-      const estandes = Array.from(document.querySelectorAll(".stand-button.selected")).map(btn => btn.textContent).join(", ");
-
-      try {
-        await addDoc(collection(db, "reservas"), {
-          nome,
-          telefone,
-          email,
-          empresa,
-          estandes,
-          data: new Date().toISOString()
-        });
-        alert("Reserva enviada com sucesso!");
-        document.getElementById("form-container").style.display = "none";
-        document.getElementById("form-container").reset();
-      } catch (error) {
-        console.error("Erro ao enviar reserva: ", error);
-        alert("Erro ao enviar reserva.");
-      }
-    };
-
-    window.toggleStandSelection = function(button) {
-      button.classList.toggle("selected");
-      const algumSelecionado = document.querySelector(".stand-button.selected");
-      document.getElementById("form-container").style.display = algumSelecionado ? "block" : "none";
-    };
-  </script>
 </head>
 <body>
   <h1>Mapa de Reserva de Estandes</h1>
-  <p>Clique nos estandes desejados para reservar. Você pode selecionar mais de um.</p>
-  <p>Após a seleção, preencha o formulário para concluir a reserva.</p>
+  <p id="instrucoes">Clique nos estandes desejados para reservar. Você pode selecionar mais de um.</p>
+  <p id="instrucoes">Após a seleção, preencha o formulário para concluir a reserva.</p>
+  <img id="mapa-img" src="mapa.png" alt="Mapa da Feira">
 
-  <img src="https://jjustinosousa-byte.github.io/reserva-evento-ExpoCentroOeste-SenadorCanedo/mapa.png" alt="Mapa da Feira"/>
+  <div id="estandes"></div>
 
-  <div id="stand-list"></div>
-
-  <div id="form-container">
+  <div id="formulario">
     <h3>Formulário de Reserva</h3>
-    <label for="nome">Nome Completo</label>
-    <input type="text" id="nome" required />
-    
-    <label for="telefone">Telefone</label>
-    <input type="tel" id="telefone" required />
-    
-    <label for="email">E-mail</label>
-    <input type="email" id="email" required />
-    
-    <label for="empresa">Empresa</label>
-    <input type="text" id="empresa" required />
-    
-    <button onclick="enviarReserva()">Enviar Reserva</button>
+    <input type="text" id="nome" placeholder="Nome completo">
+    <input type="email" id="email" placeholder="E-mail">
+    <input type="text" id="telFixo" placeholder="Telefone fixo">
+    <input type="text" id="telCelular" placeholder="Telefone celular">
+    <button id="enviarBtn" disabled>Enviar Reserva</button>
   </div>
 
   <script>
-    const container = document.getElementById("stand-list");
-    const estandes = [];
+    const letras = ['A','B','C','D','E','F','G'];
+    const quantidades = {'A':25,'B':35,'C':13,'D':27,'E':23,'F':27,'G':27};
 
-    // Mapeamento com base no layout do mapa enviado
-    const blocos = {
-      A: 35,
-      B: 35,
-      C: 43,
-      D: 27,
-      E: 29,
-      F: 25,
-      G: 27
-    };
+    const estandesContainer = document.getElementById('estandes');
+    const formulario = document.getElementById('formulario');
+    const enviarBtn = document.getElementById('enviarBtn');
+    const campos = ['nome','email','telFixo','telCelular'];
 
-    for (const bloco in blocos) {
-      for (let i = 1; i <= blocos[bloco]; i++) {
-        const id = `${bloco}${i}`;
-        const btn = document.createElement("div");
-        btn.textContent = id;
-        btn.className = "stand-button";
-        btn.onclick = () => toggleStandSelection(btn);
-        container.appendChild(btn);
+    let selecionados = [];
+
+    letras.forEach(letra => {
+      const linha = document.createElement('div');
+      linha.className = 'estande-linha';
+      for (let i = 1; i <= quantidades[letra]; i++) {
+        const estande = document.createElement('div');
+        estande.className = 'estande';
+        estande.textContent = letra + i;
+        estande.onclick = () => {
+          estande.classList.toggle('selecionado');
+          const id = estande.textContent;
+          if (selecionados.includes(id)) {
+            selecionados = selecionados.filter(e => e !== id);
+          } else {
+            selecionados.push(id);
+          }
+          formulario.style.display = selecionados.length ? 'block' : 'none';
+        }
+        linha.appendChild(estande);
       }
+      estandesContainer.appendChild(linha);
+    });
+
+    campos.forEach(id => {
+      document.getElementById(id).addEventListener('input', verificarCampos);
+    });
+
+    function verificarCampos() {
+      const preenchidos = campos.every(id => document.getElementById(id).value.trim() !== '');
+      enviarBtn.disabled = !preenchidos;
     }
   </script>
 </body>
