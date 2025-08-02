@@ -35,30 +35,28 @@
 
     #stands-container {
       display: flex;
-      flex-direction: column;
-      gap: 5px;
-      margin-top: 20px;
-    }
-
-    .linha-estandes {
-      display: flex;
       flex-wrap: wrap;
       gap: 4px;
       justify-content: center;
+      margin-top: 20px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .stand {
-      background-color: #e0e0e0;
       border: 1px solid #ccc;
-      padding: 6px 8px;
-      font-size: 11px;
+      padding: 6px 10px;
+      font-size: 12px;
       cursor: pointer;
       border-radius: 4px;
       user-select: none;
+      min-width: 50px;
+      text-align: center;
     }
 
     .stand.selected {
-      background-color: #4caf50;
+      background-color: #000;
       color: white;
       font-weight: bold;
     }
@@ -98,6 +96,14 @@
       cursor: not-allowed;
     }
 
+    /* Cores por letra */
+    .A { background-color: #FFD700; }
+    .B { background-color: #87CEFA; }
+    .C { background-color: #98FB98; }
+    .D { background-color: #FFB6C1; }
+    .E { background-color: #D8BFD8; }
+    .F { background-color: #FFA07A; }
+    .G { background-color: #D3D3D3; }
   </style>
 </head>
 <body>
@@ -105,7 +111,7 @@
   <h1>Reserva de Estandes - ExpoCentroOeste Senador Canedo</h1>
 
   <div class="mapa-container">
-    <img src="mapa-evento.png" class="mapa-evento" alt="Mapa do Evento">
+    <img src="mapa-evento.jpeg" class="mapa-evento" alt="Mapa do Evento">
   </div>
 
   <p class="instrucoes">Clique nos estandes para selecioná-los. Você pode escolher mais de um estande.</p>
@@ -142,13 +148,10 @@
     let estandesSelecionados = [];
 
     letras.forEach(letra => {
-      const linha = document.createElement("div");
-      linha.classList.add("linha-estandes");
-
       for (let i = 1; i <= quantidades[letra]; i++) {
         const standId = `${letra}${i}`;
         const div = document.createElement("div");
-        div.classList.add("stand");
+        div.classList.add("stand", letra);
         div.innerText = standId;
 
         div.addEventListener("click", () => {
@@ -166,10 +169,8 @@
           }
         });
 
-        linha.appendChild(div);
+        container.appendChild(div);
       }
-
-      container.appendChild(linha);
     });
 
     campos.forEach(id => {
