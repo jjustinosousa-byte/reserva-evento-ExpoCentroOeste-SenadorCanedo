@@ -1,134 +1,158 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reserva de Estandes</title>
+  <title>Reserva de Estandes - ExpoCentroOeste</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
-      background-color: #f5f5f5;
+      background-color: #f9f9f9;
       margin: 0;
       padding: 20px;
+      text-align: center;
     }
     h1 {
-      margin-bottom: 10px;
+      color: #333;
     }
-    #instrucoes {
+    .instructions {
+      margin-top: 10px;
       font-size: 14px;
-      margin-bottom: 10px;
+      color: #555;
     }
-    #mapa-img {
-      max-width: 100%;
-      height: auto;
-      margin: 10px 0;
+    #mapaImagem {
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
     }
-    .estande-linha {
-      margin: 8px 0;
+    #quantidadeEstandes {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+    .estandes-container {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+    }
+    .linha-estandes {
+      margin: 5px 0;
     }
     .estande {
       display: inline-block;
-      background-color: gold;
-      color: black;
+      background-color: #ffcc00;
       padding: 5px 10px;
       margin: 2px;
-      border-radius: 5px;
-      font-size: 11px;
+      border-radius: 4px;
       cursor: pointer;
+      transition: 0.3s;
     }
-    .selecionado {
-      background-color: green;
-      color: white;
+    .estande:hover {
+      background-color: #e6b800;
+    }
+    .estande.selecionado {
+      background-color: #00b300;
+      color: #fff;
     }
     #formulario {
+      display: none;
+      margin-top: 30px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
       background-color: white;
       padding: 20px;
-      margin: 30px auto;
-      width: 300px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      display: none;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    input {
+    #formulario h2 {
+      margin-bottom: 15px;
+    }
+    #formulario input[type="text"],
+    #formulario input[type="email"] {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin: 8px 0;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 5px;
     }
-    button {
-      padding: 10px 20px;
+    #enviarBtn {
       background-color: #007bff;
       color: white;
+      padding: 10px 20px;
       border: none;
       border-radius: 5px;
-      cursor: pointer;
-    }
-    button:disabled {
-      background-color: #ccc;
       cursor: not-allowed;
+      opacity: 0.5;
+    }
+    #enviarBtn.ativo {
+      cursor: pointer;
+      opacity: 1;
     }
   </style>
 </head>
 <body>
   <h1>Mapa de Reserva de Estandes</h1>
-  <p id="instrucoes">Clique nos estandes desejados para reservar. Você pode selecionar mais de um.</p>
-  <p id="instrucoes">Após a seleção, preencha o formulário para concluir a reserva.</p>
-  <img id="mapa-img" src="mapa.png" alt="Mapa da Feira">
+  <p class="instructions">Clique nos estandes desejados para reservar. Você pode selecionar mais de um.</p>
+  <p class="instructions">Após a seleção, preencha o formulário para concluir a reserva.</p>
+  <img id="mapaImagem" src="mapa-da-feira.png" alt="Mapa da Feira">
+  <div id="quantidadeEstandes">Total de estandes disponíveis: 160</div>
 
-  <div id="estandes"></div>
+  <div class="estandes-container" id="estandesContainer"></div>
 
   <div id="formulario">
-    <h3>Formulário de Reserva</h3>
-    <input type="text" id="nome" placeholder="Nome completo">
+    <h2>Formulário de Reserva</h2>
+    <input type="text" id="nome" placeholder="Nome Completo">
+    <input type="text" id="telefoneFixo" placeholder="Telefone Fixo">
+    <input type="text" id="telefoneCelular" placeholder="Telefone Celular">
     <input type="email" id="email" placeholder="E-mail">
-    <input type="text" id="telFixo" placeholder="Telefone fixo">
-    <input type="text" id="telCelular" placeholder="Telefone celular">
-    <button id="enviarBtn" disabled>Enviar Reserva</button>
+    <button id="enviarBtn">Enviar Reserva</button>
   </div>
 
   <script>
     const letras = ['A','B','C','D','E','F','G'];
-    const quantidades = {'A':25,'B':35,'C':13,'D':27,'E':23,'F':27,'G':27};
-
-    const estandesContainer = document.getElementById('estandes');
-    const formulario = document.getElementById('formulario');
-    const enviarBtn = document.getElementById('enviarBtn');
-    const campos = ['nome','email','telFixo','telCelular'];
-
-    let selecionados = [];
+    const numeros = {
+      A: 21, B: 35, C: 22, D: 27, E: 19, F: 26, G: 27
+    };
+    const estandesContainer = document.getElementById("estandesContainer");
 
     letras.forEach(letra => {
-      const linha = document.createElement('div');
-      linha.className = 'estande-linha';
-      for (let i = 1; i <= quantidades[letra]; i++) {
-        const estande = document.createElement('div');
-        estande.className = 'estande';
-        estande.textContent = letra + i;
+      const linha = document.createElement("div");
+      linha.classList.add("linha-estandes");
+      for (let i = 1; i <= numeros[letra]; i++) {
+        const estande = document.createElement("div");
+        estande.classList.add("estande");
+        estande.innerText = letra + i;
         estande.onclick = () => {
-          estande.classList.toggle('selecionado');
-          const id = estande.textContent;
-          if (selecionados.includes(id)) {
-            selecionados = selecionados.filter(e => e !== id);
-          } else {
-            selecionados.push(id);
-          }
-          formulario.style.display = selecionados.length ? 'block' : 'none';
-        }
+          estande.classList.toggle("selecionado");
+          document.getElementById("formulario").style.display = "block";
+        };
         linha.appendChild(estande);
       }
       estandesContainer.appendChild(linha);
     });
 
+    const campos = ["nome", "telefoneFixo", "telefoneCelular", "email"];
     campos.forEach(id => {
-      document.getElementById(id).addEventListener('input', verificarCampos);
+      document.getElementById(id).addEventListener("input", verificarCampos);
     });
 
     function verificarCampos() {
-      const preenchidos = campos.every(id => document.getElementById(id).value.trim() !== '');
-      enviarBtn.disabled = !preenchidos;
+      const todosPreenchidos = campos.every(id => document.getElementById(id).value.trim() !== "");
+      const btn = document.getElementById("enviarBtn");
+      if (todosPreenchidos) {
+        btn.classList.add("ativo");
+        btn.disabled = false;
+        btn.style.cursor = "pointer";
+      } else {
+        btn.classList.remove("ativo");
+        btn.disabled = true;
+        btn.style.cursor = "not-allowed";
+      }
     }
   </script>
 </body>
 </html>
+
