@@ -15,6 +15,23 @@
     header {
       background-color: #222;
       color: white;
+      padding: 20px;<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reserva de Estandes - ExpoCentroOeste</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background-color: #f5f5f5;
+    }
+    header {
+      background-color: #222;
+      color: white;
       padding: 20px;
     }
     .mapa-container {
@@ -102,25 +119,25 @@
   </div>
 
   <script>
-    const estandesData = {
-      A: [31, 33],
-      B: [34, 45],
-      C: [46, 78],
-      D: [79, 105],
-      E: [106, 130],
-      F: [131, 155],
-      G: [156, 182]
-    };
+    const estandesData = [
+      { letra: 'A', inicio: 1, fim: 33 },
+      { letra: 'B', inicio: 34, fim: 45 },
+      { letra: 'C', inicio: 46, fim: 78 },
+      { letra: 'D', inicio: 79, fim: 105 },
+      { letra: 'E', inicio: 106, fim: 130 },
+      { letra: 'F', inicio: 131, fim: 155 },
+      { letra: 'G', inicio: 156, fim: 182 },
+    ];
 
     const cores = ['#f4e542', '#ffb347', '#b0e0e6', '#98fb98', '#dda0dd', '#f08080', '#87ceeb'];
     const container = document.getElementById("estandes");
     let estandesSelecionados = [];
 
-    Object.entries(estandesData).forEach(([letra, [inicio, fim]], index) => {
-      for (let i = inicio; i <= fim; i++) {
+    estandesData.forEach((grupo, index) => {
+      for (let i = grupo.inicio; i <= grupo.fim; i++) {
         const div = document.createElement("div");
         div.className = "estande";
-        div.textContent = `${letra}${i}`;
+        div.textContent = `${grupo.letra}${i}`;
         div.style.backgroundColor = cores[index % cores.length];
 
         div.addEventListener("click", () => {
