@@ -1,23 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reserva de Estandes - ExpoCentroOeste</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-      background-color: #f5f5f5;
-    }
-    header {
-      background-color: #222;
-      color: white;
-      padding: 20px;<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Reserva de Estandes - ExpoCentroOeste</title>
@@ -119,48 +102,66 @@
   </div>
 
   <script>
-    const estandesData = [
-      { letra: 'A', inicio: 1, fim: 33 },
-      { letra: 'B', inicio: 34, fim: 45 },
-      { letra: 'C', inicio: 46, fim: 78 },
-      { letra: 'D', inicio: 79, fim: 105 },
-      { letra: 'E', inicio: 106, fim: 130 },
-      { letra: 'F', inicio: 131, fim: 155 },
-      { letra: 'G', inicio: 156, fim: 182 },
-    ];
-
-    const cores = ['#f4e542', '#ffb347', '#b0e0e6', '#98fb98', '#dda0dd', '#f08080', '#87ceeb'];
     const container = document.getElementById("estandes");
     let estandesSelecionados = [];
 
-    estandesData.forEach((grupo, index) => {
-      for (let i = grupo.inicio; i <= grupo.fim; i++) {
-        const div = document.createElement("div");
-        div.className = "estande";
-        div.textContent = `${grupo.letra}${i}`;
-        div.style.backgroundColor = cores[index % cores.length];
+    const estandes = [];
 
-        div.addEventListener("click", () => {
-          div.classList.toggle("selected");
-          const id = div.textContent;
-          if (estandesSelecionados.includes(id)) {
-            estandesSelecionados = estandesSelecionados.filter(e => e !== id);
-          } else {
-            estandesSelecionados.push(id);
-          }
+    // A1-A33
+    for (let i = 1; i <= 33; i++) {
+      estandes.push({ id: `A${i}`, cor: '#f4e542' });
+    }
+    // B34-B45
+    for (let i = 34; i <= 45; i++) {
+      estandes.push({ id: `B${i}`, cor: '#ffb347' });
+    }
+    // C46-C78
+    for (let i = 46; i <= 78; i++) {
+      estandes.push({ id: `C${i}`, cor: '#b0e0e6' });
+    }
+    // D79-D105
+    for (let i = 79; i <= 105; i++) {
+      estandes.push({ id: `D${i}`, cor: '#98fb98' });
+    }
+    // E106-E130
+    for (let i = 106; i <= 130; i++) {
+      estandes.push({ id: `E${i}`, cor: '#dda0dd' });
+    }
+    // F131-F155
+    for (let i = 131; i <= 155; i++) {
+      estandes.push({ id: `F${i}`, cor: '#f08080' });
+    }
+    // G156-G182
+    for (let i = 156; i <= 182; i++) {
+      estandes.push({ id: `G${i}`, cor: '#87ceeb' });
+    }
 
-          document.getElementById("formulario").style.display = estandesSelecionados.length ? 'block' : 'none';
-          document.getElementById("estandesSelecionados").value = estandesSelecionados.join(", ");
-        });
+    estandes.forEach(est => {
+      const div = document.createElement("div");
+      div.className = "estande";
+      div.textContent = est.id;
+      div.style.backgroundColor = est.cor;
 
-        container.appendChild(div);
-      }
+      div.addEventListener("click", () => {
+        div.classList.toggle("selected");
+        const id = div.textContent;
+        if (estandesSelecionados.includes(id)) {
+          estandesSelecionados = estandesSelecionados.filter(e => e !== id);
+        } else {
+          estandesSelecionados.push(id);
+        }
+
+        document.getElementById("formulario").style.display = estandesSelecionados.length ? 'block' : 'none';
+        document.getElementById("estandesSelecionados").value = estandesSelecionados.join(", ");
+      });
+
+      container.appendChild(div);
     });
 
     document.getElementById("reservaForm").addEventListener("submit", function(event) {
       event.preventDefault();
       alert("Reserva enviada com sucesso para os estandes: " + estandesSelecionados.join(", "));
-      // Aqui você pode integrar com Firebase, Google Sheets, etc.
+      // Integração com Google Sheets / Firebase vai aqui
     });
   </script>
 </body>
