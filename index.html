@@ -102,14 +102,22 @@
   </div>
 
   <script>
-    const letras = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    const estandesData = {
+      A: [31, 33],
+      B: [34, 45],
+      C: [46, 78],
+      D: [79, 105],
+      E: [106, 130],
+      F: [131, 155],
+      G: [156, 182]
+    };
+
     const cores = ['#f4e542', '#ffb347', '#b0e0e6', '#98fb98', '#dda0dd', '#f08080', '#87ceeb'];
     const container = document.getElementById("estandes");
     let estandesSelecionados = [];
 
-    letras.forEach((letra, index) => {
-      let max = letra === 'G' ? 181 : letra === 'F' ? 154 : letra === 'E' ? 129 : letra === 'D' ? 105 : letra === 'C' ? 78 : letra === 'B' ? 45 : 34;
-      for (let i = 1; i <= max; i++) {
+    Object.entries(estandesData).forEach(([letra, [inicio, fim]], index) => {
+      for (let i = inicio; i <= fim; i++) {
         const div = document.createElement("div");
         div.className = "estande";
         div.textContent = `${letra}${i}`;
