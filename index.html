@@ -97,7 +97,7 @@
       <input type="tel" id="telefoneFixo" placeholder="Telefone fixo">
       <input type="tel" id="telefoneCelular" placeholder="Telefone celular" required>
       <input type="hidden" id="estandesSelecionados" name="estandes">
-      <button type="submit">Enviar Reserva</button>
+      <button type="submit" disabled>Enviar Reserva</button>
     </form>
   </div>
 
@@ -163,6 +163,27 @@
       alert("Reserva enviada com sucesso para os estandes: " + estandesSelecionados.join(", "));
       // Integração com Google Sheets / Firebase vai aqui
     });
+    // Validação dinâmica dos campos para ativar o botão de envio
+const nomeInput = document.getElementById("nome");
+const emailInput = document.getElementById("email");
+const telefoneCelularInput = document.getElementById("telefoneCelular");
+const estandesInput = document.getElementById("estandesSelecionados");
+const botaoEnviar = document.querySelector("#reservaForm button");
+
+function validarFormulario() {
+  const nomeValido = nomeInput.value.trim().length > 0;
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+  const telefoneCelularValido = telefoneCelularInput.value.trim().length >= 8;
+  const estandesSelecionadosValido = estandesInput.value.trim().length > 0;
+
+  botaoEnviar.disabled = !(nomeValido && emailValido && telefoneCelularValido && estandesSelecionadosValido);
+}
+
+// Atualiza ao digitar ou ao selecionar estande
+[nomeInput, emailInput, telefoneCelularInput, estandesInput].forEach(input => {
+  input.addEventListener("input", validarFormulario);
+});
+
   </script>
 </body>
 </html>
