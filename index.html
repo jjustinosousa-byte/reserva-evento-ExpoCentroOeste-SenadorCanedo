@@ -407,11 +407,30 @@
       container.appendChild(div);
     });
 
-    document.getElementById("reservaForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-      alert("Reserva enviada com sucesso para os estandes: " + estandesSelecionados.join(", "));
-      // Integração com Google Sheets / Firebase vai aqui
+document.getElementById("reservaForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  try {
+    await db.collection("reservas").add({
+      nome: document.getElementById("nome").value,
+      email: document.getElementById("email").value,
+      telefoneFixo: document.getElementById("telefoneFixo").value,
+      telefoneCelular: document.getElementById("telefoneCelular").value,
+      estandes: estandesSelecionados,
+      data: new Date()
     });
+
+    alert("Reserva enviada com sucesso!");
+    location.reload(); // Atualiza a página para aplicar bloqueio
+  } catch (error) {
+    console.error("Erro ao salvar reserva: ", error);
+    alert("Erro ao salvar. Tente novamente.");
+  }
+});
+
+
+
+
 
     // Validação dinâmica dos campos para ativar o botão de envio
     const nomeInput = document.getElementById("nome");
